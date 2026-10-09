@@ -1,0 +1,729 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lohnkosten &amp; Umsatzsteuer</title>
+<style>
+:root{
+  --ink:#16212b; --soft:#5d6b7a; --line:#dfe4ea; --paper:#fff;
+  --desk:#eef1f4; --accent:#0f6b5c; --accent-d:#0b4f44; --accent-l:#e6f1ee;
+  --warn:#b4761f; --thumb:26px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8edf2; --soft:#9aa7b4; --line:#2c3843; --paper:#1b242d;
+    --desk:#121a21; --accent:#22a08a; --accent-d:#2cbda3; --accent-l:#15312c;
+    --warn:#d79a3c;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8edf2; --soft:#9aa7b4; --line:#2c3843; --paper:#1b242d;
+  --desk:#121a21; --accent:#22a08a; --accent-d:#2cbda3; --accent-l:#15312c;
+  --warn:#d79a3c;
+}
+body{
+  margin:0; background:var(--desk); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  font-size:16px; line-height:1.45;
+}
+.wrap{max-width:760px; margin:0 auto; padding:14px 14px 28px}
+h1{font-size:21px; font-weight:600; letter-spacing:-.2px; margin:4px 0 0}
+.head{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.head h1{flex:1}
+.tabs{display:flex; gap:6px; background:var(--paper); border:1px solid var(--line);
+  border-radius:12px; padding:4px; margin-bottom:12px}
+.tabs button{flex:1; border:none; background:transparent; color:var(--soft);
+  font:inherit; font-size:14px; font-weight:600; padding:10px; border-radius:9px; cursor:pointer}
+.tabs button.on{background:var(--accent); color:#fff}
+.card{background:var(--paper); border:1px solid var(--line); border-radius:14px;
+  padding:14px 16px 16px; margin-bottom:12px}
+.card h2{font-size:12px; font-weight:600; color:var(--soft); margin:0 0 10px}
+.card h3{font-size:13px; font-weight:600; color:var(--soft); margin:16px 0 8px}
+.row{display:flex; align-items:center; gap:12px}
+.sliderbox{flex:1; min-width:0}
+
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%;
+  background:transparent; margin:0; height:var(--thumb); display:block; touch-action:none}
+input[type=range]::-webkit-slider-runnable-track{height:7px;border-radius:4px;background:var(--line)}
+input[type=range]::-moz-range-track{height:7px;border-radius:4px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:7px;border-radius:4px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none;
+  width:var(--thumb); height:var(--thumb); border-radius:50%; background:var(--paper);
+  border:3px solid var(--accent); margin-top:calc((7px - var(--thumb))/2); cursor:pointer}
+input[type=range]::-moz-range-thumb{width:var(--thumb); height:var(--thumb); border-radius:50%;
+  background:var(--paper); border:3px solid var(--accent); cursor:pointer}
+.scale{position:relative; height:24px; margin-top:2px; font-size:11px; color:var(--soft)}
+.scale span{position:absolute; transform:translateX(-50%); white-space:nowrap; top:9px}
+.scale i{position:absolute; width:1px; height:5px; background:#aab4be; top:1px}
+.scale .on{color:var(--accent); font-weight:600}
+.scale i.on{background:var(--accent); width:2px; height:7px}
+
+.num{width:132px; flex:none; display:flex; align-items:stretch; border:1px solid var(--line);
+  border-radius:10px; background:var(--paper); overflow:hidden}
+.num input{flex:1; min-width:0; border:none; background:transparent; color:var(--ink);
+  font:inherit; text-align:right; padding:10px 4px 10px 10px; outline:none}
+.num .unit{align-self:center; color:var(--soft); font-size:13px; padding-right:8px}
+.num .steps{display:flex; flex-direction:column; border-left:1px solid var(--line)}
+.num button{flex:1; width:30px; border:none; background:transparent; color:var(--soft);
+  font-size:11px; line-height:1; cursor:pointer; padding:0}
+.num button:active{background:var(--accent-l); color:var(--accent)}
+.num:focus-within{border-color:var(--accent)}
+.num.override{border-color:var(--warn)}
+
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+.chip{border:1px solid var(--line); background:var(--paper); color:var(--soft);
+  border-radius:16px; padding:9px 14px; font:inherit; font-size:14px; cursor:pointer; min-height:40px}
+.chip:hover{border-color:var(--accent); color:var(--accent)}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+
+.fixed{display:flex; align-items:center; gap:10px; margin-top:14px;
+  padding-top:14px; border-top:1px solid var(--line); flex-wrap:wrap}
+.fixed label{flex:1; font-size:14px; color:var(--soft); min-width:120px}
+.note{color:var(--warn); font-size:12px; width:100%; margin:0}
+.note button{background:none; border:none; color:var(--accent); font:inherit;
+  font-size:12px; text-decoration:underline; cursor:pointer; padding:0}
+
+.trips{display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px}
+.trip{border:1px solid var(--line); background:var(--paper); border-radius:10px;
+  padding:9px 11px; cursor:pointer; text-align:left; font:inherit; color:var(--ink); min-height:52px}
+.trip:hover{border-color:var(--accent)}
+.trip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.trip b{display:block; font-size:13px; font-weight:600}
+.trip span{font-size:12px; color:var(--soft)}
+.trip.on span{color:rgba(255,255,255,.85)}
+
+.lines{display:grid; grid-template-columns:1fr auto; gap:4px 14px; margin-bottom:10px}
+.lines dt{color:var(--soft); font-size:14px; margin:0}
+.lines dd{margin:0; text-align:right; font-variant-numeric:tabular-nums}
+.lines .sum dt,.lines .sum dd{border-top:1px solid var(--line); padding-top:5px; margin-top:3px}
+.big{font-size:20px; font-weight:600; color:var(--accent-d)}
+.preview{background:var(--accent-l); border:1px solid var(--line);
+  border-color:color-mix(in srgb,var(--accent) 30%,transparent);
+  border-radius:10px; padding:11px 13px; margin:2px 0 8px; white-space:pre-line; user-select:text}
+.hint{color:var(--soft); font-size:12px; margin:0 0 10px}
+.actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.primary{background:var(--accent); color:#fff; border:none; border-radius:10px;
+  padding:13px 22px; font:inherit; font-weight:600; cursor:pointer; min-height:46px}
+.primary:active{background:var(--accent-d)}
+.flash{color:var(--accent); font-size:13px; flex:1; min-height:1.2em}
+.auto{display:flex; align-items:center; gap:7px; color:var(--soft); font-size:13px; cursor:pointer}
+.auto input{width:18px; height:18px; accent-color:var(--accent)}
+.quiet{background:none; border:none; color:var(--soft); font:inherit; font-size:13px;
+  cursor:pointer; padding:6px 2px}
+.quiet:hover{color:var(--warn)}
+
+#list{list-style:none; margin:0; padding:0; max-height:46vh; overflow-y:auto}
+#list li{border:1px solid var(--line); border-radius:9px; padding:10px 12px;
+  margin-bottom:6px; cursor:pointer; font-size:13px; color:var(--soft)}
+#list li:active{background:var(--accent-l)}
+#list b{display:block; color:var(--accent-d); font-size:15px; margin-bottom:2px}
+#list .empty{border-style:dashed; cursor:default; text-align:center}
+
+.cfgrow{display:flex; align-items:center; gap:10px; margin-bottom:8px}
+.cfgrow label{flex:1; font-size:14px}
+.cfgrow input[type=text]{border:1px solid var(--line); border-radius:9px; background:var(--paper);
+  color:var(--ink); font:inherit; padding:9px 10px; min-width:0; outline:none}
+.cfgrow input[type=text]:focus{border-color:var(--accent)}
+.cfgrow .label{flex:1}
+.cfgrow .amount{width:92px; text-align:right}
+.cfgrow .del{border:none; background:none; color:var(--soft); font-size:18px;
+  cursor:pointer; padding:4px 6px; line-height:1}
+.cfgrow .del:hover{color:#c0392b}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="head">
+  <h1>Lohnkosten für die Rechnung</h1>
+  <button class="quiet" id="reset">Standardwerte</button>
+</div>
+
+<div class="tabs">
+  <button id="tabCalc" class="on">Rechnen</button>
+  <button id="tabCfg">Einstellungen</button>
+</div>
+
+<!-- ============================ RECHNEN ============================ -->
+<div id="viewCalc">
+
+<section class="card">
+  <h2>Arbeitsleistung</h2>
+  <div class="row">
+    <div class="sliderbox">
+      <input type="range" id="rateSlider" min="0" step="1">
+      <div class="scale" id="rateScale"></div>
+    </div>
+    <div class="num">
+      <input type="text" inputmode="decimal" id="rateInput">
+      <span class="unit">€/h</span>
+      <span class="steps">
+        <button data-step="rate:1" aria-label="mehr">▲</button>
+        <button data-step="rate:-1" aria-label="weniger">▼</button>
+      </span>
+    </div>
+  </div>
+  <div class="chips" id="rateChips"></div>
+
+  <div class="row" style="margin-top:16px">
+    <div class="sliderbox">
+      <input type="range" id="hourSlider" min="0" step="1">
+      <div class="scale" id="hourScale"></div>
+    </div>
+    <div class="num">
+      <input type="text" inputmode="decimal" id="hourInput">
+      <span class="unit">h</span>
+      <span class="steps">
+        <button data-step="hour:1" aria-label="mehr">▲</button>
+        <button data-step="hour:-1" aria-label="weniger">▼</button>
+      </span>
+    </div>
+  </div>
+  <div class="chips" id="hourChips"></div>
+
+  <div class="fixed">
+    <label for="netInput">Nettolohn <span style="font-size:12px">(überschreibbar für Festpreise)</span></label>
+    <div class="num" id="netBox">
+      <input type="text" inputmode="decimal" id="netInput">
+      <span class="unit">€</span>
+    </div>
+    <p class="note hidden" id="netNote">Festpreis gesetzt – Stundensatz und Zeit sind entkoppelt.
+      <button id="netReset">zurück zur Berechnung</button></p>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Anfahrt <span style="font-weight:400">(netto)</span></h2>
+  <div class="trips" id="trips"></div>
+</section>
+
+<section class="card">
+  <h2>Verbrauchsmaterial <span style="font-weight:400">(netto)</span></h2>
+  <div class="row">
+    <span style="flex:1; font-size:14px; color:var(--soft)">
+      Reiniger, Schmier- und Silikonspray, Tücher – ohne verbautes Material</span>
+    <div class="num">
+      <input type="text" inputmode="decimal" id="matInput">
+      <span class="unit">€</span>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Umsatzsteuer</h2>
+  <div class="row" style="flex-wrap:wrap">
+    <div class="chips" id="taxChips" style="margin:0"></div>
+    <div class="num" style="width:110px">
+      <input type="text" inputmode="decimal" id="taxInput" disabled>
+      <span class="unit">%</span>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Ergebnis</h2>
+  <dl class="lines" id="lines"></dl>
+  <div class="preview" id="preview"></div>
+  <p class="hint">Auf Cent kaufmännisch gerundet · brutto = netto + USt</p>
+  <div class="actions">
+    <button class="primary" id="copy">Text kopieren</button>
+    <span class="flash" id="flash"></span>
+    <label class="auto"><input type="checkbox" id="auto" checked> bei jeder Änderung</label>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Bisherige Berechnungen</h2>
+  <p class="hint">Über „Text kopieren“ gemerkt · Eintrag antippen, um ihn erneut zu kopieren</p>
+  <ul id="list"></ul>
+  <div class="foot" style="display:flex;justify-content:flex-end">
+    <button class="quiet" id="clear">Verlauf leeren</button></div>
+</section>
+</div>
+
+<!-- ========================= EINSTELLUNGEN ========================= -->
+<div id="viewCfg" class="hidden">
+
+<section class="card">
+  <h2>Stundensätze</h2>
+  <div class="cfgrow">
+    <label for="cfgHv">Hausverwaltung</label>
+    <div class="num" style="width:120px"><input type="text" inputmode="decimal" id="cfgHv">
+      <span class="unit">€/h</span></div>
+  </div>
+  <div class="cfgrow">
+    <label for="cfgPk">Privatkunde</label>
+    <div class="num" style="width:120px"><input type="text" inputmode="decimal" id="cfgPk">
+      <span class="unit">€/h</span></div>
+  </div>
+  <p class="hint" style="margin:10px 0 0">Beide Sätze erscheinen als Schaltfläche und als
+    Rastpunkt auf dem Regler.</p>
+</section>
+
+<section class="card">
+  <h2>Anfahrtspauschalen (netto)</h2>
+  <div id="cfgTrips"></div>
+  <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
+    <button class="quiet" id="addTrip" style="color:var(--accent)">+ Stufe hinzufügen</button>
+    <span style="flex:1"></span>
+    <button class="quiet" id="resetCfg">auf Auslieferungszustand zurücksetzen</button>
+  </div>
+  <p class="hint" style="margin:12px 0 0">Reihenfolge wie eingetragen. Eine Stufe ohne
+    Bezeichnung oder ohne Betrag wird übersprungen. Änderungen gelten sofort und bleiben
+    in diesem Browser gespeichert.</p>
+</section>
+</div>
+
+</div>
+<script>
+"use strict";
+/* ---------------------------------------------------------------- Vorlage */
+const TEMPLATE = (brutto, ust) =>
+  `Im Rechnungsbetrag sind Arbeits- und Fahrtkosten von ${brutto} brutto enthalten, ` +
+  `die Sie nach § 35a EStG steuerlich geltend machen können.\n` +
+  `Die darin enthaltene Umsatzsteuer beträgt ${ust}.`;
+const CURRENCY = v => v + "€";          // "€" -> " €" für ein Leerzeichen
+
+/* --------------------------------------------------------------- Rechnen
+   Alles in ganzen Zahlen: Beträge in Cent, Zeit in Hundertstel-Stunden,
+   Steuersatz in Zehntel-Prozent. Kein Fließkomma, kaufmännisch gerundet. */
+const half = (z, n) => Math.floor((z * 2 + n) / (2 * n));
+const netCents = (rate, hours) => half(rate * hours, 100);
+const taxCents = (net, tax)    => half(net * tax, 1000);
+
+/* -------------------------------------------------------------- Vorgaben */
+function steps(from, to, step){ const a=[]; for(let v=from; v<=to; v+=step) a.push(v); return a; }
+const RATE_STOPS = [...steps(4000,7000,100), ...steps(7200,8000,200), ...steps(8500,10000,500)];
+const RATE_SNAP_STEPS = 2, RATE_LABELS = [4000,5500,6500,8000,10000], RATE_STEP = 100;
+const HOUR_STOPS = [...steps(50,300,25), ...steps(350,600,50), ...steps(700,1000,100)];
+const HOUR_SNAPS = [100,150,200,250], HOUR_SNAP_STEPS = 1;
+const HOUR_LABELS = [50,100,150,200,250,300,600,1000];
+const HOUR_CHIPS = [50,100,150,200], HOUR_DEFAULT = 100, HOUR_STEP = 50;
+const TAX_PRESETS = [0,70,190], TAX_DEFAULT = 190;
+
+/* Anfahrtsstaffel wie bisher in Gebrauch, netto */
+const TRIPS_DEFAULT = [
+  {label:"ohne Anfahrt", cents:0},
+  {label:"bis 5 km",   cents:2000},
+  {label:"bis 10 km",  cents:2500},
+  {label:"bis 20 km",  cents:3500},
+  {label:"bis 40 km",  cents:5500},
+  {label:"bis 50 km",  cents:6500},
+  {label:"bis 60 km",  cents:7500},
+  {label:"bis 70 km",  cents:8500},
+  {label:"bis 80 km",  cents:9500},
+  {label:"bis 90 km",  cents:10500},
+  {label:"bis 100 km", cents:11500},
+  {label:"bis 150 km", cents:17500},
+  {label:"bis 200 km", cents:23000},
+];
+const CFG_DEFAULT = {rateHv:5500, ratePk:6500, trips:TRIPS_DEFAULT};
+
+const AUTO_DELAY = 450, HISTORY_MAX = 60;
+const STORE = "lohnkosten.verlauf", CFG_KEY = "lohnkosten.einstellungen";
+
+/* ------------------------------------------------------------ Formate */
+function fmtCents(c){
+  const s = (Math.abs(c)/100).toFixed(2).split(".");
+  return (c<0?"-":"") + s[0].replace(/\B(?=(\d{3})+(?!\d))/g,".") + "," + s[1];
+}
+const fmtEur = c => CURRENCY(fmtCents(c));
+function fmtPlain(hundredths){
+  return (hundredths/100).toFixed(2).replace(/0+$/,"").replace(/\.$/,"").replace(".",",");
+}
+function parseNum(text, scale){
+  const t = String(text).replace(/[^0-9,.]/g,"").replace(",",".");
+  if(!t || isNaN(Number(t))) return null;
+  return Math.round(Number(t) * scale);
+}
+const nearest = (stops,v) => stops.reduce((b,s,i) => Math.abs(s-v)<Math.abs(stops[b]-v)?i:b, 0);
+function snap(stops, snaps, index, tol){
+  let best=index, dist=tol+1;
+  for(const v of snaps){ const d=Math.abs(index-nearest(stops,v));
+    if(d<dist){best=nearest(stops,v); dist=d;} }
+  return dist<=tol ? best : index;
+}
+
+/* -------------------------------------------------------------- Zustand */
+let cfg = structuredClone(CFG_DEFAULT);
+let rate = cfg.rateHv, hours = HOUR_DEFAULT, tax = TAX_DEFAULT;
+let trip = 0, material = 0, netOverride = null;
+let log = [], autoTimer = null, flashTimer = null, ready = false;
+const $ = id => document.getElementById(id);
+
+function amounts(){
+  const lohn = netOverride !== null ? netOverride : netCents(rate, hours);
+  const net  = lohn + trip + material;
+  const ust  = taxCents(net, tax);
+  return {lohn, trip, material, net, ust, brutto: net + ust};
+}
+const currentText = () => {
+  const a = amounts();
+  return TEMPLATE(fmtEur(a.brutto), fmtEur(a.ust));
+};
+
+/* ------------------------------------------------------------- Speichern */
+function loadCfg(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(CFG_KEY) || "null");
+    if(raw && typeof raw === "object"){
+      cfg = {
+        rateHv: Number(raw.rateHv) || CFG_DEFAULT.rateHv,
+        ratePk: Number(raw.ratePk) || CFG_DEFAULT.ratePk,
+        trips: Array.isArray(raw.trips) && raw.trips.length
+          ? raw.trips.map(t => ({label:String(t.label||""), cents:Number(t.cents)||0}))
+          : structuredClone(TRIPS_DEFAULT)
+      };
+    }
+  }catch(e){}
+}
+function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
+
+/* ------------------------------------------------------------- Skalen-UI */
+function drawScale(box, slider, stops, labels, marks){
+  const w = slider.clientWidth;
+  const thumb = parseInt(getComputedStyle(document.documentElement)
+    .getPropertyValue("--thumb")) || 26;
+  box.innerHTML = "";
+  for(const value of labels){
+    const i = nearest(stops, value);
+    const x = thumb/2 + (w - thumb) * (i / (stops.length - 1));
+    const on = marks.some(m => nearest(stops,m) === i);
+    const tick = document.createElement("i");
+    tick.style.left = x + "px"; if(on) tick.className = "on";
+    const text = document.createElement("span");
+    text.style.left = x + "px"; text.textContent = fmtPlain(value);
+    if(on) text.className = "on";
+    box.append(tick, text);
+  }
+}
+function drawScales(){
+  drawScale($("rateScale"), $("rateSlider"), RATE_STOPS,
+    [...new Set([...RATE_LABELS, cfg.rateHv, cfg.ratePk])].sort((a,b)=>a-b),
+    [cfg.rateHv, cfg.ratePk]);
+  drawScale($("hourScale"), $("hourSlider"), HOUR_STOPS, HOUR_LABELS, HOUR_SNAPS);
+}
+
+/* --------------------------------------------------------------- Setzen */
+function setRate(value, src){
+  rate = Math.max(0, value); netOverride = null;
+  if(src !== "slider") $("rateSlider").value = nearest(RATE_STOPS, rate);
+  if(src !== "input")  $("rateInput").value  = fmtCents(rate);
+  document.querySelectorAll("#rateChips .chip").forEach(c =>
+    c.classList.toggle("on", Number(c.dataset.value) === rate));
+  update();
+}
+function setHours(value, src){
+  hours = Math.max(1, value); netOverride = null;
+  if(src !== "slider") $("hourSlider").value = nearest(HOUR_STOPS, hours);
+  if(src !== "input")  $("hourInput").value  = fmtPlain(hours);
+  document.querySelectorAll("#hourChips .chip").forEach(c =>
+    c.classList.toggle("on", Number(c.dataset.value) === hours));
+  update();
+}
+function setNet(value){                      // Festpreis
+  netOverride = Math.max(0, value);
+  update();
+}
+function setTrip(cents, index){
+  trip = cents;
+  document.querySelectorAll("#trips .trip").forEach((b,i) =>
+    b.classList.toggle("on", i === index));
+  update();
+}
+function setTax(value, custom){
+  tax = value;
+  $("taxInput").disabled = !custom;
+  if(!custom) $("taxInput").value = fmtPlain(tax*10);
+  document.querySelectorAll("#taxChips .chip").forEach(c =>
+    c.classList.toggle("on", c.dataset.custom ? custom
+      : (!custom && Number(c.dataset.value) === tax)));
+  update();
+}
+
+function update(){
+  const a = amounts();
+  const custom = netOverride !== null;
+  $("netNote").classList.toggle("hidden", !custom);
+  $("netBox").classList.toggle("override", custom);
+  if(document.activeElement !== $("netInput")) $("netInput").value = fmtCents(a.lohn);
+
+  const rows = [[custom ? "Arbeitsleistung (Festpreis)"
+                        : `Arbeitsleistung · ${fmtPlain(hours)} h × ${fmtCents(rate)} €`, a.lohn]];
+  if(a.trip)     rows.push(["Anfahrt", a.trip]);
+  if(a.material) rows.push(["Verbrauchsmaterial", a.material]);
+  const dl = $("lines"); dl.innerHTML = "";
+  const add = (name, value, cls, big) => {
+    const dt = document.createElement("dt"), dd = document.createElement("dd");
+    dt.textContent = name; dd.textContent = fmtEur(value);
+    if(cls){ dt.className = cls; dd.className = cls; }
+    if(big) dd.classList.add("big");
+    dl.append(dt, dd);
+  };
+  rows.forEach(r => add(r[0], r[1]));
+  if(rows.length > 1) add("Summe netto", a.net, "sum");
+  add(`Umsatzsteuer ${fmtPlain(tax*10)} %`, a.ust);
+  add("Begünstigt brutto", a.brutto, "", true);
+
+  $("preview").textContent = currentText();
+  scheduleAuto();
+}
+
+/* ------------------------------------------------------------- Kopieren */
+async function toClipboard(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    let ok=false; try{ ok = document.execCommand("copy"); }catch(_){}
+    ta.remove(); return ok;
+  }
+}
+function flash(text){
+  $("flash").textContent = text;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { $("flash").textContent = ""; }, 2200);
+}
+async function copyNow(auto){
+  clearTimeout(autoTimer);
+  const text = currentText(), a = amounts();
+  const ok = await toClipboard(text);
+  flash(!ok ? "Kopieren nicht möglich" : auto ? "Kopiert" : "Kopiert und gemerkt");
+  if(!auto && ok) addHistory(a, text);
+}
+function scheduleAuto(){
+  if(!ready || !$("auto").checked) return;
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => copyNow(true), AUTO_DELAY);
+}
+
+/* -------------------------------------------------------------- Verlauf */
+function loadHistory(){
+  try{ log = JSON.parse(localStorage.getItem(STORE) || "[]"); }catch(e){ log = []; }
+  if(!Array.isArray(log)) log = [];
+  renderHistory();
+}
+function saveHistory(){ try{ localStorage.setItem(STORE, JSON.stringify(log)); }catch(e){} }
+function addHistory(a, text){
+  const entry = {netto:a.net, lohn:a.lohn, fahrt:a.trip, material:a.material,
+                 text, zeit:new Date().toISOString()};
+  if(log[0] && log[0].text === text && log[0].netto === a.net) log[0] = entry;
+  else log.unshift(entry);
+  log = log.slice(0, HISTORY_MAX);
+  renderHistory(); saveHistory();
+}
+function renderHistory(){
+  const ul = $("list"); ul.innerHTML = "";
+  if(!log.length){
+    const li = document.createElement("li");
+    li.className = "empty"; li.textContent = "noch nichts gemerkt";
+    ul.appendChild(li); return;
+  }
+  for(const e of log){
+    const li = document.createElement("li");
+    const b = document.createElement("b");
+    const parts = [`Lohn ${fmtCents(e.lohn||0)}`];
+    if(e.fahrt) parts.push(`Anfahrt ${fmtCents(e.fahrt)}`);
+    if(e.material) parts.push(`Material ${fmtCents(e.material)}`);
+    b.textContent = `${fmtEur(e.netto)} netto · ${parts.join(" · ")}`;
+    li.append(b, document.createTextNode(e.text));
+    li.title = new Date(e.zeit).toLocaleString("de-DE");
+    li.onclick = async () =>
+      flash(await toClipboard(e.text) ? "Kopiert" : "Kopieren nicht möglich");
+    ul.appendChild(li);
+  }
+}
+
+/* ----------------------------------------------------------------- Aufbau */
+function buildRateChips(){
+  const rc = $("rateChips"); rc.innerHTML = "";
+  for(const [value,label] of [[cfg.rateHv,"Hausverwaltung"],[cfg.ratePk,"Privatkunde"]]){
+    const b = document.createElement("button");
+    b.className = "chip"; b.dataset.value = value;
+    b.textContent = `${fmtCents(value).replace(",00","")} € · ${label}`;
+    b.onclick = () => setRate(value);
+    rc.appendChild(b);
+  }
+  rc.querySelectorAll(".chip").forEach(c =>
+    c.classList.toggle("on", Number(c.dataset.value) === rate));
+}
+function buildTrips(){
+  const box = $("trips"); box.innerHTML = "";
+  cfg.trips.forEach((t, i) => {
+    if(!t.label) return;
+    const b = document.createElement("button");
+    b.className = "trip";
+    const name = document.createElement("b"); name.textContent = t.label;
+    const price = document.createElement("span"); price.textContent = fmtEur(t.cents);
+    b.append(name, price);
+    b.onclick = () => setTrip(t.cents, i);
+    box.appendChild(b);
+  });
+  const active = cfg.trips.findIndex(t => t.cents === trip);
+  box.querySelectorAll(".trip").forEach((b,i) => b.classList.toggle("on", i === active));
+}
+function buildStaticChips(){
+  const hc = $("hourChips");
+  for(const value of HOUR_CHIPS){
+    const b = document.createElement("button");
+    b.className = "chip"; b.dataset.value = value;
+    b.textContent = `${fmtPlain(value)} h`;
+    b.onclick = () => setHours(value);
+    hc.appendChild(b);
+  }
+  const tc = $("taxChips");
+  for(const value of TAX_PRESETS){
+    const b = document.createElement("button");
+    b.className = "chip"; b.dataset.value = value;
+    b.textContent = `${fmtPlain(value*10)} %`;
+    b.onclick = () => setTax(value, false);
+    tc.appendChild(b);
+  }
+  const custom = document.createElement("button");
+  custom.className = "chip"; custom.dataset.custom = "1"; custom.textContent = "eigener";
+  custom.onclick = () => { setTax(parseNum($("taxInput").value,10) ?? tax, true); $("taxInput").focus(); };
+  tc.appendChild(custom);
+}
+
+/* ------------------------------------------------------------ Einstellungen */
+function buildCfg(){
+  $("cfgHv").value = fmtCents(cfg.rateHv);
+  $("cfgPk").value = fmtCents(cfg.ratePk);
+  const box = $("cfgTrips"); box.innerHTML = "";
+  cfg.trips.forEach((t, i) => {
+    const row = document.createElement("div"); row.className = "cfgrow";
+    const label = document.createElement("input");
+    label.type = "text"; label.className = "label"; label.value = t.label;
+    label.placeholder = "Bezeichnung, z. B. bis 25 km";
+    label.oninput = () => { cfg.trips[i].label = label.value; saveCfg(); buildTrips(); };
+    const amount = document.createElement("input");
+    amount.type = "text"; amount.className = "amount"; amount.inputMode = "decimal";
+    amount.value = fmtCents(t.cents);
+    amount.oninput = () => {
+      const v = parseNum(amount.value, 100);
+      if(v !== null){ cfg.trips[i].cents = v; saveCfg(); buildTrips(); }
+    };
+    const unit = document.createElement("span");
+    unit.textContent = "€"; unit.style.color = "var(--soft)";
+    const del = document.createElement("button");
+    del.className = "del"; del.textContent = "✕"; del.title = "Stufe entfernen";
+    del.onclick = () => { cfg.trips.splice(i,1); saveCfg(); buildCfg(); buildTrips(); };
+    row.append(label, amount, unit, del);
+    box.appendChild(row);
+  });
+}
+function wireCfg(){
+  $("cfgHv").oninput = () => {
+    const v = parseNum($("cfgHv").value, 100);
+    if(v !== null){ cfg.rateHv = v; saveCfg(); buildRateChips(); drawScales(); }
+  };
+  $("cfgPk").oninput = () => {
+    const v = parseNum($("cfgPk").value, 100);
+    if(v !== null){ cfg.ratePk = v; saveCfg(); buildRateChips(); drawScales(); }
+  };
+  $("addTrip").onclick = () => {
+    cfg.trips.push({label:"neue Stufe", cents:0});
+    saveCfg(); buildCfg(); buildTrips();
+  };
+  $("resetCfg").onclick = () => {
+    cfg = structuredClone(CFG_DEFAULT);
+    saveCfg(); buildCfg(); buildRateChips(); buildTrips(); drawScales();
+  };
+  const show = calc => {
+    $("viewCalc").classList.toggle("hidden", !calc);
+    $("viewCfg").classList.toggle("hidden", calc);
+    $("tabCalc").classList.toggle("on", calc);
+    $("tabCfg").classList.toggle("on", !calc);
+    if(calc) requestAnimationFrame(drawScales);
+  };
+  $("tabCalc").onclick = () => show(true);
+  $("tabCfg").onclick  = () => show(false);
+}
+
+/* ----------------------------------------------------------------- Draht */
+function wire(){
+  const rs = $("rateSlider"), hs = $("hourSlider");
+  rs.max = RATE_STOPS.length - 1;
+  hs.max = HOUR_STOPS.length - 1;
+
+  let pointer = false;                       // Rasten nur beim Ziehen/Tippen
+  for(const el of [rs, hs]){
+    el.addEventListener("pointerdown", () => pointer = true);
+    el.addEventListener("pointerup",   () => pointer = false);
+    el.addEventListener("keydown",     () => pointer = false);
+  }
+  rs.addEventListener("input", () => {
+    let i = Number(rs.value);
+    if(pointer) i = snap(RATE_STOPS, [cfg.rateHv, cfg.ratePk], i, RATE_SNAP_STEPS);
+    rs.value = i; setRate(RATE_STOPS[i], "slider");
+  });
+  hs.addEventListener("input", () => {
+    let i = Number(hs.value);
+    if(pointer) i = snap(HOUR_STOPS, HOUR_SNAPS, i, HOUR_SNAP_STEPS);
+    hs.value = i; setHours(HOUR_STOPS[i], "slider");
+  });
+
+  $("rateInput").addEventListener("input", e => {
+    const v = parseNum(e.target.value, 100); if(v !== null) setRate(v, "input"); });
+  $("rateInput").addEventListener("blur", () => setRate(rate));
+  $("hourInput").addEventListener("input", e => {
+    const v = parseNum(e.target.value, 100); if(v !== null) setHours(v, "input"); });
+  $("hourInput").addEventListener("blur", () => setHours(hours));
+  $("netInput").addEventListener("input", e => {
+    const v = parseNum(e.target.value, 100); if(v !== null) setNet(v); });
+  $("netInput").addEventListener("blur", () => update());
+  $("netReset").onclick = () => { netOverride = null; update(); };
+  $("matInput").addEventListener("input", e => {
+    const v = parseNum(e.target.value, 100); material = v === null ? 0 : v; update(); });
+  $("matInput").addEventListener("blur", () => { $("matInput").value = fmtCents(material); });
+  $("taxInput").addEventListener("input", e => {
+    const v = parseNum(e.target.value, 10); if(v !== null) setTax(v, true); });
+
+  document.querySelectorAll("[data-step]").forEach(btn => {
+    btn.onclick = () => {
+      const [what, dir] = btn.dataset.step.split(":"); const d = Number(dir);
+      if(what === "rate"){
+        const base = d > 0 ? Math.floor(rate/RATE_STEP) : Math.ceil(rate/RATE_STEP);
+        setRate(Math.max(RATE_STEP, (base + d) * RATE_STEP));
+      }else{
+        const base = d > 0 ? Math.floor(hours/HOUR_STEP) : Math.ceil(hours/HOUR_STEP);
+        setHours(Math.max(25, (base + d) * HOUR_STEP));
+      }
+    };
+  });
+
+  $("copy").onclick  = () => copyNow(false);
+  $("clear").onclick = () => { log = []; renderHistory(); saveHistory(); };
+  $("reset").onclick = () => applyDefaults();
+  $("auto").onchange = () => { if(!$("auto").checked) clearTimeout(autoTimer); };
+  document.addEventListener("keydown", e => {
+    if(e.key === "Enter"){ e.preventDefault(); copyNow(false); }
+    if(e.key === "Escape") applyDefaults();
+  });
+  window.addEventListener("resize", drawScales);
+}
+
+function applyDefaults(){
+  netOverride = null; material = 0; $("matInput").value = fmtCents(0);
+  setRate(cfg.rateHv); setHours(HOUR_DEFAULT); setTax(TAX_DEFAULT, false);
+  setTrip(cfg.trips[0] ? cfg.trips[0].cents : 0, 0);
+}
+
+loadCfg();
+buildStaticChips(); buildRateChips(); buildTrips(); buildCfg();
+wire(); wireCfg(); loadHistory(); applyDefaults(); drawScales();
+requestAnimationFrame(drawScales);
+ready = true;
+</script>
+</body>
+</html>
+
+</body></html>
